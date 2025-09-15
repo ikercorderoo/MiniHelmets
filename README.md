@@ -1,8 +1,8 @@
-# MiniHelmets 🪖
+# MiniHelmets 🏁
 
-**Versión:** 0.1.0  
+**Versión:** 0.0.0  
 
-Monorepo del proyecto **MiniHelmets**, una tienda online de mini cascos coleccionables.  
+Monorepo del proyecto **MiniHelmets**, una tienda online de mini cascos coleccionables de F1 y MotoGP.  
 Este repositorio contiene dos partes principales:
 
 - `frontend/`: Interfaz de usuario.
@@ -12,4 +12,4 @@ Este repositorio contiene dos partes principales:
 🚧 En desarrollo (versión inicial).
 
 ## Autores
-- Tu nombre / equipo
+- Iker Cordero Luengo
