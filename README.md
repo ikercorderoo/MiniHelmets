@@ -2,7 +2,7 @@
 
 **Versión:** 0.0.0  
 
-Monorepo del proyecto **MiniHelmets**, una tienda online de mini cascos coleccionables de F1 y MotoGP.  
+Proyecto **MiniHelmets**, una tienda online de mini cascos coleccionables de F1 y MotoGP.  
 Este repositorio contiene dos partes principales:
 
 - `frontend/`: Interfaz de usuario.
