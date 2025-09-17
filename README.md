@@ -22,24 +22,21 @@ Este proyecto está desarrollado con las siguientes tecnologías y herramientas:
 - **Node.js** – Entorno de ejecución para JavaScript.  
 - **Docker** – Para ejecutar la aplicación en contenedores fácilmente.
 
-##Autor
+## Autor
 Iker Cordero Luengo
 
-##Herramientas de ayuda
-GITHUB subir archivos /carpetas
-# 1. Te aseguras de estar en la carpeta del repositorio
+## Herramientas de ayuda
+### GITHUB subir archivos /carpetas
+
 cd C:\Users\iker\Desktop\MiniHelmets
 
-# 2. Añades tu carpeta nueva al staging
 git add doc/
 
-# 3. Creas un commit con un mensaje
 git commit -m "Añadir carpeta doc"
 
-# 4. Descargas posibles cambios que haya en GitHub
 git pull origin main
 
-# 5. Subes tus cambios a GitHub
 git push origin main
+
 ## Autores  
 - Iker Cordero Luengo  
