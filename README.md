@@ -22,9 +22,6 @@ Este proyecto está desarrollado con las siguientes tecnologías y herramientas:
 - **Node.js** – Entorno de ejecución para JavaScript.  
 - **Docker** – Para ejecutar la aplicación en contenedores fácilmente.
 
-## Autor
-Iker Cordero Luengo
-
 ## Herramientas de ayuda
 ### GITHUB subir archivos /carpetas
 
