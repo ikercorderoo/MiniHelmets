@@ -45,5 +45,13 @@ git pull origin main
 
 git push origin main
 
+## Conexión Docker con Mongo 
+### Mongo DB Compass
+Creamos nuestro archivo "docker-compose.yaml" para crear nuestro contenedor y subir la imagen de mongo
+también crearemos el archivo ".env" donde pondremos las credenciales del Mongo DB.
+### Mongo DB Express
+Dentro del archivo ".yaml", añadimos la imagen de Mongo DB Express, para tener interfaz grafica de la 
+base de datos, y en el ".env" añadimos las credenciales. 
+
 ## Autores  
 - Iker Cordero Luengo
