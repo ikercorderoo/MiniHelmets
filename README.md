@@ -1,6 +1,6 @@
 # MiniHelmets 🏁  
 
-**Versión:** 0.0.0  
+**Versión:** 1.0.0  
 
 Proyecto **MiniHelmets**, una tienda online de mini cascos coleccionables de F1 y MotoGP.  
 Este repositorio contiene dos partes principales:  
@@ -22,6 +22,16 @@ Este proyecto está desarrollado con las siguientes tecnologías y herramientas:
 - **Node.js** – Entorno de ejecución para JavaScript.  
 - **Docker** – Para ejecutar la aplicación en contenedores fácilmente.
 
+## Architecture Decision Records (ADRs)
+
+### ADRs Documentados:
+
+- **ADR-001** - Elección de MongoDB como base de datos principal
+- **ADR-002** - Estructura monorepo para frontend y backend  
+- **ADR-003** - Modelado de datos para e-commerce de coleccionables
+
+*Consulta la carpeta `/docs/adrs/` para más detalles sobre las decisiones de arquitectura.*
+
 ## Herramientas de ayuda
 ### GITHUB subir archivos /carpetas
 
@@ -36,4 +46,4 @@ git pull origin main
 git push origin main
 
 ## Autores  
-- Iker Cordero Luengo  
+- Iker Cordero Luengo
