@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const productoSchema = new mongoose.Schema({
+const productSchema = new mongoose.Schema({
     nombre: {
         type: String,
         required: true
@@ -21,4 +21,4 @@ const productoSchema = new mongoose.Schema({
     timestamps: true  // Esto añade automáticamente createdAt y updatedAt
 });
 
-module.exports = mongoose.model('Producto', productoSchema);
+module.exports = mongoose.model('Product', productSchema);
