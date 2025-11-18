@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const bcrypt = require('bcrypt');
 
 const usuarioSchema = new mongoose.Schema({
     nombre: {
@@ -15,7 +16,16 @@ const usuarioSchema = new mongoose.Schema({
         required: true
     }
 }, {
-    timestamps: true  // Esto añade automáticamente createdAt y updatedAt
+    timestamps: true
+});
+
+// Cifra la contraseña automaticamente
+usuarioSchema.pre('save', async function(next) {
+    if (!this.isModified('password')) return next();
+    
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
+    next();
 });
 
 module.exports = mongoose.model('Usuario', usuarioSchema);
