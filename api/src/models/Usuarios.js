@@ -14,12 +14,22 @@ const usuarioSchema = new mongoose.Schema({
     password: {
         type: String,
         required: true
-    }
+    },
+    refreshTokens: [{
+        token: {
+            type: String,
+            required: true
+        },
+        createdAt: {
+            type: Date,
+            default: Date.now,
+            expires: 604800
+        }
+    }]
 }, {
     timestamps: true
 });
 
-// Cifra la contraseña automaticamente
 usuarioSchema.pre('save', async function(next) {
     if (!this.isModified('password')) return next();
     
@@ -27,5 +37,9 @@ usuarioSchema.pre('save', async function(next) {
     this.password = await bcrypt.hash(this.password, salt);
     next();
 });
+
+usuarioSchema.methods.compararPassword = async function(passwordIngresada) {
+    return await bcrypt.compare(passwordIngresada, this.password);
+};
 
 module.exports = mongoose.model('Usuario', usuarioSchema);

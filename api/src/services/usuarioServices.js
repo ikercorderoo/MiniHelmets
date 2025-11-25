@@ -1,14 +1,34 @@
 const Usuario = require('../models/Usuarios');
-const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
-// Funcion registrar
+const generarAccessToken = (usuario) => {
+    return jwt.sign(
+        { 
+            id: usuario._id, 
+            email: usuario.email 
+        },
+        process.env.JWT_SECRET,
+        { expiresIn: '15m' }
+    );
+};
+
+const generarRefreshToken = (usuario) => {
+    return jwt.sign(
+        { 
+            id: usuario._id, 
+            email: usuario.email 
+        },
+        process.env.JWT_REFRESH_SECRET,
+        { expiresIn: '7d' }
+    );
+};
+
 const registrarUsuario = async ({ nombre, email, password }) => {
-    // Validar si el email existeix
     const existe = await Usuario.findOne({ email });
-    if (existe) throw new Error('Email ya está utilizado');
+    if (existe) {
+        throw new Error('El email ya está registrado');
+    }
     
-    // Crear el usuario
     const nuevoUsuario = new Usuario({
         nombre,
         email,
@@ -17,12 +37,11 @@ const registrarUsuario = async ({ nombre, email, password }) => {
     
     await nuevoUsuario.save();
     
-    // Generar token JWT
-    const token = jwt.sign(
-        { id: nuevoUsuario._id, email: nuevoUsuario.email },
-        process.env.JWT_SECRET || 'tu_secret_key_aqui',
-        { expiresIn: '24h' }
-    );
+    const accessToken = generarAccessToken(nuevoUsuario);
+    const refreshToken = generarRefreshToken(nuevoUsuario);
+    
+    nuevoUsuario.refreshTokens.push({ token: refreshToken });
+    await nuevoUsuario.save();
     
     return {
         usuario: {
@@ -30,26 +49,27 @@ const registrarUsuario = async ({ nombre, email, password }) => {
             nombre: nuevoUsuario.nombre,
             email: nuevoUsuario.email
         },
-        token
+        accessToken,
+        refreshToken
     };
 };
 
-// Función para hacer login
 const loginUsuario = async ({ email, password }) => {
-    // Buscar usuario por email
     const usuario = await Usuario.findOne({ email });
-    if (!usuario) throw new Error('Credenciales incorrectas');
+    if (!usuario) {
+        throw new Error('Credenciales incorrectas');
+    }
     
-    // Comparar contraseña
-    const esValida = await bcrypt.compare(password, usuario.password);
-    if (!esValida) throw new Error('Credenciales incorrectas');
+    const esValida = await usuario.compararPassword(password);
+    if (!esValida) {
+        throw new Error('Credenciales incorrectas');
+    }
     
-    // Generar token JWT
-    const token = jwt.sign(
-        { id: usuario._id, email: usuario.email },
-        process.env.JWT_SECRET || 'tu_secret_key_aqui',
-        { expiresIn: '24h' }
-    );
+    const accessToken = generarAccessToken(usuario);
+    const refreshToken = generarRefreshToken(usuario);
+    
+    usuario.refreshTokens.push({ token: refreshToken });
+    await usuario.save();
     
     return {
         usuario: {
@@ -57,11 +77,78 @@ const loginUsuario = async ({ email, password }) => {
             nombre: usuario.nombre,
             email: usuario.email
         },
-        token
+        accessToken,
+        refreshToken
     };
+};
+
+const renovarTokens = async (refreshToken) => {
+    try {
+        const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+        
+        const usuario = await Usuario.findById(decoded.id);
+        if (!usuario) {
+            throw new Error('Usuario no encontrado');
+        }
+        
+        const tokenIndex = usuario.refreshTokens.findIndex(
+            rt => rt.token === refreshToken
+        );
+        
+        if (tokenIndex === -1) {
+            usuario.refreshTokens = [];
+            await usuario.save();
+            throw new Error('Token inválido o reutilizado. Por seguridad, se han cerrado todas las sesiones.');
+        }
+        
+        usuario.refreshTokens.splice(tokenIndex, 1);
+        
+        const nuevoAccessToken = generarAccessToken(usuario);
+        const nuevoRefreshToken = generarRefreshToken(usuario);
+        
+        usuario.refreshTokens.push({ token: nuevoRefreshToken });
+        await usuario.save();
+        
+        return {
+            accessToken: nuevoAccessToken,
+            refreshToken: nuevoRefreshToken
+        };
+        
+    } catch (error) {
+        if (error.name === 'JsonWebTokenError') {
+            throw new Error('Token de refresco inválido');
+        }
+        if (error.name === 'TokenExpiredError') {
+            throw new Error('Token de refresco expirado. Por favor, inicia sesión nuevamente');
+        }
+        throw error;
+    }
+};
+
+const logout = async (refreshToken) => {
+    try {
+        const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+        
+        const usuario = await Usuario.findById(decoded.id);
+        if (!usuario) {
+            throw new Error('Usuario no encontrado');
+        }
+        
+        usuario.refreshTokens = usuario.refreshTokens.filter(
+            rt => rt.token !== refreshToken
+        );
+        await usuario.save();
+        
+        return { mensaje: 'Sesión cerrada correctamente' };
+        
+    } catch (error) {
+        throw new Error('Error al cerrar sesión');
+    }
 };
 
 module.exports = {
     registrarUsuario,
-    loginUsuario
+    loginUsuario,
+    renovarTokens,
+    logout
 };
