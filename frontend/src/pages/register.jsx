@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { Container, Row, Col, Card, Form, Button, Alert } from 'react-bootstrap';
 
 function Register() {
   const [formData, setFormData] = useState({
@@ -8,6 +9,9 @@ function Register() {
     password: '',
     confirmPassword: ''
   });
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [validated, setValidated] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -17,102 +21,165 @@ function Register() {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    const form = e.currentTarget;
     
-    if (formData.password !== formData.confirmPassword) {
-      alert('Las contraseñas no coinciden');
+    if (form.checkValidity() === false) {
+      e.stopPropagation();
+      setValidated(true);
       return;
     }
 
-    // Aquí conectarás con tu backend
-    console.log('Registro:', formData);
-    // Después de registro exitoso:
-    // navigate('/login');
+    setError('');
+    setLoading(true);
+
+    // Validar contraseñas
+    if (formData.password !== formData.confirmPassword) {
+      setError('Las contraseñas no coinciden');
+      setLoading(false);
+      return;
+    }
+
+    // Validar longitud de contraseña
+    if (formData.password.length < 6) {
+      setError('La contraseña debe tener al menos 6 caracteres');
+      setLoading(false);
+      return;
+    }
+
+    try {
+      // Aquí conectarás con tu backend
+      console.log('Registro:', formData);
+      
+      // Simulación de llamada al backend
+      // const response = await fetch('http://localhost:3000/api/auth/register', {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify({
+      //     nombre: formData.nombre,
+      //     email: formData.email,
+      //     password: formData.password
+      //   })
+      // });
+      
+      // if (response.ok) {
+      //   navigate('/login');
+      // } else {
+      //   setError('Error al registrar usuario');
+      // }
+      
+    } catch (err) {
+      setError('Error al conectar con el servidor');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-        <h2 className="text-2xl font-bold mb-6 text-center">Crear Cuenta</h2>
-        
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label className="block text-gray-700 mb-2" htmlFor="nombre">
-              Nombre
-            </label>
-            <input
-              type="text"
-              id="nombre"
-              name="nombre"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              value={formData.nombre}
-              onChange={handleChange}
-              required
-            />
-          </div>
+    <Container fluid className="min-vh-100 d-flex align-items-center justify-content-center bg-light">
+      <Row className="w-100 justify-content-center">
+        <Col xs={12} sm={10} md={6} lg={5} xl={4}>
+          <Card className="shadow-lg border-0">
+            <Card.Body className="p-4">
+              <div className="text-center mb-4">
+                <h2 className="fw-bold text-primary">Crear Cuenta</h2>
+                <p className="text-muted">Regístrate para comenzar</p>
+              </div>
 
-          <div className="mb-4">
-            <label className="block text-gray-700 mb-2" htmlFor="email">
-              Email
-            </label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              value={formData.email}
-              onChange={handleChange}
-              required
-            />
-          </div>
+              {error && <Alert variant="danger">{error}</Alert>}
 
-          <div className="mb-4">
-            <label className="block text-gray-700 mb-2" htmlFor="password">
-              Contraseña
-            </label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              value={formData.password}
-              onChange={handleChange}
-              required
-            />
-          </div>
+              <Form noValidate validated={validated} onSubmit={handleSubmit}>
+                <Form.Group className="mb-3" controlId="formNombre">
+                  <Form.Label>Nombre completo</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="nombre"
+                    placeholder="Tu nombre"
+                    value={formData.nombre}
+                    onChange={handleChange}
+                    required
+                    size="lg"
+                  />
+                  <Form.Control.Feedback type="invalid">
+                    Por favor, introduce tu nombre.
+                  </Form.Control.Feedback>
+                </Form.Group>
 
-          <div className="mb-6">
-            <label className="block text-gray-700 mb-2" htmlFor="confirmPassword">
-              Confirmar Contraseña
-            </label>
-            <input
-              type="password"
-              id="confirmPassword"
-              name="confirmPassword"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              required
-            />
-          </div>
+                <Form.Group className="mb-3" controlId="formEmail">
+                  <Form.Label>Email</Form.Label>
+                  <Form.Control
+                    type="email"
+                    name="email"
+                    placeholder="tu@email.com"
+                    value={formData.email}
+                    onChange={handleChange}
+                    required
+                    size="lg"
+                  />
+                  <Form.Control.Feedback type="invalid">
+                    Por favor, introduce un email válido.
+                  </Form.Control.Feedback>
+                </Form.Group>
 
-          <button
-            type="submit"
-            className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition duration-200"
-          >
-            Registrarse
-          </button>
-        </form>
+                <Form.Group className="mb-3" controlId="formPassword">
+                  <Form.Label>Contraseña</Form.Label>
+                  <Form.Control
+                    type="password"
+                    name="password"
+                    placeholder="Mínimo 6 caracteres"
+                    value={formData.password}
+                    onChange={handleChange}
+                    required
+                    minLength={6}
+                    size="lg"
+                  />
+                  <Form.Control.Feedback type="invalid">
+                    La contraseña debe tener al menos 6 caracteres.
+                  </Form.Control.Feedback>
+                </Form.Group>
 
-        <p className="mt-4 text-center text-gray-600">
-          ¿Ya tienes cuenta?{' '}
-          <Link to="/login" className="text-blue-600 hover:underline">
-            Inicia sesión
-          </Link>
-        </p>
-      </div>
-    </div>
+                <Form.Group className="mb-4" controlId="formConfirmPassword">
+                  <Form.Label>Confirmar Contraseña</Form.Label>
+                  <Form.Control
+                    type="password"
+                    name="confirmPassword"
+                    placeholder="Repite tu contraseña"
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
+                    required
+                    size="lg"
+                  />
+                  <Form.Control.Feedback type="invalid">
+                    Por favor, confirma tu contraseña.
+                  </Form.Control.Feedback>
+                </Form.Group>
+
+                <div className="d-grid gap-2 mb-3">
+                  <Button 
+                    variant="primary" 
+                    type="submit" 
+                    size="lg"
+                    disabled={loading}
+                  >
+                    {loading ? 'Registrando...' : 'Registrarse'}
+                  </Button>
+                </div>
+
+                <div className="text-center">
+                  <small className="text-muted">
+                    ¿Ya tienes cuenta?{' '}
+                    <Link to="/login" className="text-decoration-none fw-bold">
+                      Inicia sesión aquí
+                    </Link>
+                  </small>
+                </div>
+              </Form>
+            </Card.Body>
+          </Card>
+        </Col>
+      </Row>
+    </Container>
   );
 }
 

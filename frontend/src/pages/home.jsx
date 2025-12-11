@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { Container, Navbar, Nav, Button, Card, Row, Col } from 'react-bootstrap';
 
 function Home() {
   // Productos de ejemplo - luego los traerás de tu backend
@@ -35,67 +36,77 @@ function Home() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div>
       {/* Navbar */}
-      <nav className="bg-white shadow-md">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-blue-600">Mi Tienda</h1>
-          <div className="space-x-4">
-            <Link to="/login" className="text-gray-700 hover:text-blue-600">
-              Iniciar Sesión
-            </Link>
-            <Link to="/register" className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
-              Registrarse
-            </Link>
-          </div>
-        </div>
-      </nav>
+      <Navbar bg="white" expand="lg" className="shadow-sm">
+        <Container>
+          <Navbar.Brand as={Link} to="/" className="fw-bold text-primary fs-3">
+            Mini Helmets  
+          </Navbar.Brand>
+          <Navbar.Toggle aria-controls="basic-navbar-nav" />
+          <Navbar.Collapse id="basic-navbar-nav">
+            <Nav className="ms-auto">
+              <Nav.Link as={Link} to="/login" className="me-2">
+                Iniciar Sesión
+              </Nav.Link>
+              <Button as={Link} to="/register" variant="primary">
+                Registrarse
+              </Button>
+            </Nav>
+          </Navbar.Collapse>
+        </Container>
+      </Navbar>
 
       {/* Hero Section */}
-      <section className="bg-blue-600 text-white py-20">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-4xl font-bold mb-4">Bienvenido a nuestra tienda</h2>
-          <p className="text-xl mb-8">Encuentra los mejores productos al mejor precio</p>
-          <button className="bg-white text-blue-600 px-6 py-3 rounded-md font-semibold hover:bg-gray-100">
+      <div className="bg-primary text-white py-5">
+        <Container className="text-center py-5">
+          <h1 className="display-4 fw-bold mb-4">Bienvenido a nuestra tienda</h1>
+          <p className="lead mb-4">Encuentra los mejores productos al mejor precio</p>
+          <Button variant="light" size="lg" className="text-primary fw-bold">
             Ver Productos
-          </button>
-        </div>
-      </section>
+          </Button>
+        </Container>
+      </div>
 
       {/* Productos Destacados */}
-      <section className="container mx-auto px-4 py-12">
-        <h2 className="text-3xl font-bold mb-8 text-center">Productos Destacados</h2>
+      <Container className="my-5">
+        <h2 className="text-center fw-bold mb-5">Productos Destacados</h2>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <Row xs={1} md={2} lg={4} className="g-4">
           {productos.map((producto) => (
-            <div key={producto.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition duration-200">
-              <img 
-                src={producto.imagen} 
-                alt={producto.nombre}
-                className="w-full h-48 object-cover"
-              />
-              <div className="p-4">
-                <h3 className="text-xl font-semibold mb-2">{producto.nombre}</h3>
-                <p className="text-gray-600 mb-4">{producto.descripcion}</p>
-                <div className="flex justify-between items-center">
-                  <span className="text-2xl font-bold text-blue-600">
-                    ${producto.precio}
-                  </span>
-                  <button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
-                    Comprar
-                  </button>
-                </div>
-              </div>
-            </div>
+            <Col key={producto.id}>
+              <Card className="h-100 shadow-sm border-0">
+                <Card.Img 
+                  variant="top" 
+                  src={producto.imagen} 
+                  alt={producto.nombre}
+                  style={{ height: '200px', objectFit: 'cover' }}
+                />
+                <Card.Body className="d-flex flex-column">
+                  <Card.Title className="fw-bold">{producto.nombre}</Card.Title>
+                  <Card.Text className="text-muted flex-grow-1">
+                    {producto.descripcion}
+                  </Card.Text>
+                  <div className="d-flex justify-content-between align-items-center mt-3">
+                    <span className="fs-4 fw-bold text-primary">
+                      ${producto.precio}
+                    </span>
+                    <Button variant="primary">
+                      Comprar
+                    </Button>
+                  </div>
+                </Card.Body>
+              </Card>
+            </Col>
           ))}
-        </div>
-      </section>
+        </Row>
+      </Container>
 
       {/* Footer */}
-      <footer className="bg-gray-800 text-white py-8 mt-12">
-        <div className="container mx-auto px-4 text-center">
-          <p>&copy; 2025 Mi Tienda. Todos los derechos reservados.</p>
-        </div>
+      <footer className="bg-dark text-white text-center py-4 mt-5">
+        <Container>
+          <p className="mb-0">&copy; 2025 MiniHelmet. Todos los derechos reservados.</p>
+        </Container>
       </footer>
     </div>
   );
