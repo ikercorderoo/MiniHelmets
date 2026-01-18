@@ -1,8 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Container, Navbar, Nav, Button, Card, Row, Col } from 'react-bootstrap';
+import { Container, Navbar, Nav, Button, Card, Row, Col, Badge } from 'react-bootstrap';
 
 function Home() {
+  // Estado para la cistella
+  const [cistella, setCistella] = useState([]);
+  const [cistellaOberta, setCistellaOberta] = useState(false);
+
   // Productos de ejemplo - luego los traerás de tu backend
   const productos = [
     {
@@ -35,6 +39,34 @@ function Home() {
     }
   ];
 
+  // Función para agregar producto a la cistella
+  const afegirProducte = (producto) => {
+    const productoExistente = cistella.find(item => item.id === producto.id);
+    
+    if (productoExistente) {
+      // Si el producto ya está, incrementar cantidad
+      setCistella(cistella.map(item =>
+        item.id === producto.id
+          ? { ...item, quantitat: item.quantitat + 1 }
+          : item
+      ));
+    } else {
+      // Si es nuevo, agregarlo con cantidad 1
+      setCistella([...cistella, { ...producto, quantitat: 1 }]);
+    }
+  };
+
+  // Función para eliminar producto de la cistella
+  const eliminarProducte = (id) => {
+    setCistella(cistella.filter(item => item.id !== id));
+  };
+
+  // Calcular total de productos en la cistella
+  const totalProductes = cistella.reduce((total, item) => total + item.quantitat, 0);
+
+  // Calcular precio total
+  const preuTotal = cistella.reduce((total, item) => total + (item.precio * item.quantitat), 0);
+
   return (
     <div>
       {/* Navbar */}
@@ -49,13 +81,74 @@ function Home() {
               <Nav.Link as={Link} to="/login" className="me-2">
                 Iniciar Sesión
               </Nav.Link>
-              <Button as={Link} to="/register" variant="primary">
+              <Button as={Link} to="/register" variant="primary" className="me-2">
                 Registrarse
+              </Button>
+              
+              {/* Botón de cistella */}
+              <Button 
+                variant="outline-primary" 
+                className="position-relative"
+                onClick={() => setCistellaOberta(!cistellaOberta)}
+              >
+                🛒 Cistella
+                {totalProductes > 0 && (
+                  <Badge 
+                    bg="danger" 
+                    className="position-absolute top-0 start-100 translate-middle"
+                  >
+                    {totalProductes}
+                  </Badge>
+                )}
               </Button>
             </Nav>
           </Navbar.Collapse>
         </Container>
       </Navbar>
+
+      {/* Cistella desplegable */}
+      {cistellaOberta && (
+        <div className="bg-light border-bottom shadow-sm">
+          <Container className="py-3">
+            <h5 className="mb-3">Cistella de Compras</h5>
+            
+            {cistella.length === 0 ? (
+              <p className="text-muted">La cistella està buida</p>
+            ) : (
+              <>
+                {cistella.map((item) => (
+                  <div 
+                    key={item.id} 
+                    className="d-flex justify-content-between align-items-center mb-2 p-2 bg-white rounded"
+                  >
+                    <div>
+                      <strong>{item.nombre}</strong>
+                      <span className="text-muted ms-2">x{item.quantitat}</span>
+                    </div>
+                    <div className="d-flex align-items-center">
+                      <span className="me-3">${(item.precio * item.quantitat).toFixed(2)}</span>
+                      <Button 
+                        variant="danger" 
+                        size="sm"
+                        onClick={() => eliminarProducte(item.id)}
+                      >
+                        Eliminar
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+                
+                <div className="border-top pt-2 mt-3">
+                  <div className="d-flex justify-content-between align-items-center">
+                    <strong>Total:</strong>
+                    <strong className="fs-5 text-primary">${preuTotal.toFixed(2)}</strong>
+                  </div>
+                </div>
+              </>
+            )}
+          </Container>
+        </div>
+      )}
 
       {/* Hero Section */}
       <div className="bg-primary text-white py-5">
@@ -91,7 +184,10 @@ function Home() {
                     <span className="fs-4 fw-bold text-primary">
                       ${producto.precio}
                     </span>
-                    <Button variant="primary">
+                    <Button 
+                      variant="primary"
+                      onClick={() => afegirProducte(producto)}
+                    >
                       Comprar
                     </Button>
                   </div>
