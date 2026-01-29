@@ -1,4 +1,5 @@
-require('dotenv').config({ path: '../.env' });
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '../.env') });
 
 const express = require('express');
 const connectDB = require('./config/db');
@@ -8,6 +9,15 @@ const usuariosRoutes = require('./routes/usuariosRoutes');
 const app = express();
 
 app.use(express.json());
+
+// Middleware CORS manual (para permitir peticiones desde el frontend 5173)
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Headers', 'Authorization, X-API-KEY, Origin, X-Requested-With, Content-Type, Accept, Access-Control-Allow-Request-Method');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE');
+    res.header('Allow', 'GET, POST, OPTIONS, PUT, DELETE');
+    next();
+});
 
 connectDB();
 
@@ -20,6 +30,7 @@ app.get('/', (req, res) => res.send('API Ecommerce en marxa 🚀'));
 
 app.use('/api/products', productRoutes);
 app.use('/api/usuarios', usuariosRoutes);
+app.use('/api/pedidos', require('./routes/pedidoRoutes'));
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Servidor escoltant al port ${PORT}`));
