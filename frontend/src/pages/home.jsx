@@ -9,34 +9,47 @@ function Home() {
   const [productos, setProductos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [mensajeCompra, setMensajeCompra] = useState(null);
-
   const [error, setError] = useState(null);
+  const [cerca, setCerca] = useState("");
+  const [categoria, setCategoria] = useState("");
 
-  // Cargar productos del backend al iniciar
+  // Cargar cistella de localStorage al iniciar
   useEffect(() => {
-    fetch('http://localhost:3000/api/products')
+    const savedCart = JSON.parse(localStorage.getItem('cistella') || '[]');
+    if (savedCart.length > 0) setCistella(savedCart);
+  }, []);
+
+  // Guardar cistella en localStorage cuando cambie
+  useEffect(() => {
+    localStorage.setItem('cistella', JSON.stringify(cistella));
+  }, [cistella]);
+
+  // Cargar productos del backend con filtros de búsqueda y categoría
+  useEffect(() => {
+    let url = `http://localhost:3000/api/products?nombre=${cerca}`;
+    if (categoria) url += `&categoria=${categoria}`;
+
+    fetch(url)
       .then(res => {
         if (!res.ok) throw new Error('Error en la respuesta del servidor');
         return res.json();
       })
       .then(data => {
-        // Validación extra: el backend devuelve { status: 'success', data: [...] }
         const listaProductos = data.data || data;
 
         if (Array.isArray(listaProductos)) {
           setProductos(listaProductos);
         } else {
-          console.error("El backend no devolvió un array:", data);
           setProductos([]);
         }
         setLoading(false);
       })
       .catch(err => {
         console.error("Error cargando productos:", err);
-        setError("No se pudieron cargar los productos. Asegúrate de que el Backend está encendido.");
+        setError("No se pudieron cargar los productos.");
         setLoading(false);
       });
-  }, []);
+  }, [cerca, categoria]);
 
   // Función para agregar producto a la cistella
   const afegirProducte = (producto) => {
@@ -108,7 +121,20 @@ function Home() {
           </Navbar.Brand>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
-            <Nav className="ms-auto">
+            <Nav className="ms-auto align-items-center">
+              {/* Buscador de productos */}
+              <div className="me-3 position-relative">
+                <input
+                  type="text"
+                  className="form-control rounded-pill"
+                  placeholder="Buscar cascos..."
+                  value={cerca}
+                  onChange={(e) => setCerca(e.target.value)}
+                  style={{ width: '250px', paddingLeft: '40px' }}
+                />
+                <span className="position-absolute translate-middle-y top-50 start-0 ps-3">🔍</span>
+              </div>
+
               <Nav.Link as={Link} to="/login" className="me-2">
                 Iniciar Sesión
               </Nav.Link>
@@ -208,8 +234,27 @@ function Home() {
       </div>
 
       {/* Productos Destacados */}
-      <Container className="my-5">
-        <h2 className="text-center fw-bold mb-5">Productos Destacados</h2>
+      <Container className="my-5" id="productos">
+        <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5">
+          <h2 className="fw-bold mb-3 mb-md-0">Productes Destacats</h2>
+
+          {/* Filtros de Categoría */}
+          <div className="d-flex gap-2">
+            {['', 'F1', 'MotoGP', 'Legend', 'Rally'].map((cat) => (
+              <Button
+                key={cat}
+                variant={categoria === cat ? "primary" : "outline-primary"}
+                size="sm"
+                onClick={() => setCategoria(cat)}
+                className="rounded-pill px-3"
+              >
+                {cat === '' ? 'Tots' : cat}
+              </Button>
+            ))}
+          </div>
+
+          <div className="text-muted mt-3 mt-md-0">{(productos || []).length} productes trobats</div>
+        </div>
 
         {error && (
           <Alert variant="danger" className="text-center">
@@ -224,15 +269,21 @@ function Home() {
             {productos.map((producto) => (
               <Col key={producto._id}>
                 <Card className="h-100 shadow-sm border-0">
-                  <Card.Img
-                    variant="top"
-                    // Usar imagen del producto o placeholder si no tiene
-                    src={producto.imagen || 'https://via.placeholder.com/300x200'}
-                    alt={producto.nombre}
-                    style={{ height: '200px', objectFit: 'cover' }}
-                  />
+                  <Link to={`/product/${producto._id}`}>
+                    <Card.Img
+                      variant="top"
+                      src={producto.imagen || 'https://via.placeholder.com/300x200'}
+                      alt={producto.nombre}
+                      onError={(e) => {
+                        e.target.src = 'https://via.placeholder.com/300x200';
+                      }}
+                      style={{ height: '200px', objectFit: 'cover' }}
+                    />
+                  </Link>
                   <Card.Body className="d-flex flex-column">
-                    <Card.Title className="fw-bold">{producto.nombre}</Card.Title>
+                    <Link to={`/product/${producto._id}`} className="text-decoration-none text-dark">
+                      <Card.Title className="fw-bold">{producto.nombre}</Card.Title>
+                    </Link>
                     <Card.Text className="text-muted flex-grow-1">
                       {producto.descripcion}
                     </Card.Text>

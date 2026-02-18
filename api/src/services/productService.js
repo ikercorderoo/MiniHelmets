@@ -6,9 +6,16 @@ const createProduct = async (productData) => {
     return await newProduct.save();
 };
 
-// Obtener todos los productos
-const getProducts = async () => {
-    return await Product.find();
+// Obtener todos los productos (con filtrado opcional)
+const getProducts = async (filters = {}) => {
+    let query = {};
+    if (filters.nombre) {
+        query.nombre = { $regex: filters.nombre, $options: 'i' };
+    }
+    if (filters.categoria) {
+        query.categoria = filters.categoria;
+    }
+    return await Product.find(query);
 };
 
 const getProductById = async (id) => {

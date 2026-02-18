@@ -13,7 +13,11 @@ const createProduct = async (req, res) => {
 // Obtener todos los productos
 const getProducts = async (req, res) => {
     try {
-        const products = await productService.getProducts();
+        const filters = {
+            nombre: req.query.nombre,
+            categoria: req.query.categoria
+        };
+        const products = await productService.getProducts(filters);
         res.status(200).json({ status: 'success', data: products });
     } catch (error) {
         res.status(500).json({ status: 'error', message: error.message });

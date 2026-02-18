@@ -1,43 +1,27 @@
-# Explicación de Cambios - Cistella amb Backend (Sessió 12)
+# Explicació Sessió 13 (18): Catàleg, Filtres i Detall
 
-## Resumen
-S'ha vinculat la cistella del frontend amb el backend (API), permetent carregar productes reals de la base de dades i guardar les comandes realitzades.
+En aquesta sessió s'ha ampliat l'e-commerce per permetre una navegació completa pels productes, incloent cerca i vista detallada.
 
 ## Canvis Realitzats
 
-### 1. **Backend (API)**
+### 1. Backend (API)
+- **Filtratge**: S'ha modificat el controlador i servei de productes per acceptar un paràmetre `nombre`. Ara la API permet fer cerques parcials (regex) i no distingeix entre majúscules i minúscules.
+- **Detall**: S'ha assegurat que l'endpoint `GET /api/products/:id` retorna tota la informació del producte.
 
-#### Models (`src/models/pedido.js`)
-- Creat esquema `Pedido` amb Mongoose.
-- Estructura: array de `items` (amb producte, quantitat, preu) i `total`.
+### 2. Frontend (Catàleg i Filtres)
+- **Buscador en Temps Real**: S'ha afegit un input de cerca al Navbar de la Home. En escriure, la web fa una petició automàtica al backend filtrant els resultats sense necessitat de recarregar.
+- **Persistència (localStorage)**: S'ha implementat la persistència de la cistella. Ara es guarda al navegador, permetent navegar entre la Home i el Detall sense perdre els productes afegits.
+- **Enllaços al Detall**: S'han afegit enllaços a la pàgina de detall tant en les imatges com en els títols de cada producte.
 
-#### Controlador i Rutes
-- Creat `pedidoController.js` amb la funció `createPedido` per guardar la comanda a MongoDB.
-- Creat `pedidoRoutes.js` amb la ruta `POST /` vinculada al controlador.
-- Registrat la ruta `/api/pedidos` a l'arxiu principal.
-
-#### Configuració (`src/index.js`)
-- Afegit middleware **CORS** manual per permetre la comunicació entre el frontend (port 5173) i el backend (port 3000).
-
-### 2. **Frontend (`Home.jsx`)**
-
-#### Càrrega de Productes (`fetch`)
-- Substituït l'array estàtic de productes.
-- Implementat `useEffect` per fer una petició `GET` a `http://localhost:3000/api/products`.
-- Gestió de l'estat de càrrega (`loading`).
-
-#### Finalitzar Compra
-- Afegit el botó "Finalitzar Compra" a la cistella.
-- Implementat funció `finalitzarCompra` que fa un `POST` a `http://localhost:3000/api/pedidos` amb el contingut del carret.
-- Mostra un missatge d'èxit ("Compra realitzada amb èxit") i buida la cistella.
-
-## Tecnologies Utilitzades
-- **Frontend**: React (`useEffect`, `fetch`), Bootstrap.
-- **Backend**: Node.js, Express, Mongoose.
-- **Base de Dades**: MongoDB (per guardar `Pedido` i llegir `Product`).
+### 3. Frontend (Pàgina de Detall)
+- **Vista Detallada (`ProductDetail.jsx`)**: Nova pàgina que mostra tota la fitxa del producte: imatge en gran, preu, descripció completa i l'estoc disponible.
+- **Rutes**: S'ha configurat la ruta dinàmica `/product/:id` per carregar automàticament el producte corresponent.
+- **Afegir al Carret**: L'usuari pot afegir unitats directament des de la pantalla de detall.
 
 ## Com provar-ho
-1. Assegurar que MongoDB està funcionant.
-2. Engegar backend: `npm run dev` (a la carpeta `/api`).
-3. Engegar frontend: `npm run dev` (a la carpeta `/frontend`).
-4. La cistella ara mostra productes de la DB i guarda les comandes realment.
+1. Utilitza la barra de cerca per trobar un casc (ex: "Alonso" o "Red Bull").
+2. Clica a la imatge o al títol per entrar al detall del producte.
+3. Afegeix el producte a la cistella i verifica que es manté al carret quan tornis a la Home.
+
+---
+**GitHub Link**: [Insereix aquí el teu link de GitHub]

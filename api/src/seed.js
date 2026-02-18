@@ -4,32 +4,52 @@ const Product = require('./models/Product');
 
 const productos = [
     {
-        nombre: 'Casco Red Bull',
-        precio: 29.99,
-        imagen: 'https://m.media-amazon.com/images/I/61S1gS91fVL._AC_SL1500_.jpg',
-        descripcion: 'Mini casco oficial de Red Bull Racing',
-        stock: 10
-    },
-    {
-        nombre: 'Casco Mercedes',
-        precio: 39.99,
-        imagen: 'https://m.media-amazon.com/images/I/71wZwG5a2oL._AC_SL1500_.jpg',
-        descripcion: 'Réplica exacta del casco de Lewis Hamilton',
-        stock: 5
-    },
-    {
-        nombre: 'Casco Ferrari',
-        precio: 49.99,
-        imagen: 'https://m.media-amazon.com/images/I/71-k9fGk+XL._AC_SL1500_.jpg',
-        descripcion: 'Edición limitada del casco de Charles Leclerc',
-        stock: 3
-    },
-    {
-        nombre: 'Casco Aston Martin',
+        nombre: 'Casco Fernando Alonso',
         precio: 59.99,
-        imagen: 'https://m.media-amazon.com/images/I/71O8+c-y+4L._AC_SL1500_.jpg',
-        descripcion: 'El casco de Fernando Alonso 2024',
-        stock: 8
+        imagen: '/images/alonso.png',
+        descripcion: 'Réplica del icónico casco de Fernando Alonso en Aston Martin.',
+        stock: 14,
+        categoria: 'F1'
+    },
+    {
+        nombre: 'Casco Marc Márquez',
+        precio: 49.99,
+        imagen: '/images/marquez.png',
+        descripcion: 'El casco de "La Hormiga" de Cervera, Marc Márquez en MotoGP.',
+        stock: 93,
+        categoria: 'MotoGP'
+    },
+    {
+        nombre: 'Casco Fabio Quartararo',
+        precio: 45.99,
+        imagen: '/images/quartararo.png',
+        descripcion: 'Casco oficial de "El Diablo", Fabio Quartararo.',
+        stock: 20,
+        categoria: 'MotoGP'
+    },
+    {
+        nombre: 'Casco Lewis Hamilton',
+        precio: 55.99,
+        imagen: '/images/hamilton.png',
+        descripcion: 'Diseño exclusivo del 7 veces campeón del mundo Lewis Hamilton.',
+        stock: 44,
+        categoria: 'F1'
+    },
+    {
+        nombre: 'Casco Ayrton Senna',
+        precio: 65.00,
+        imagen: '/images/senna.png',
+        descripcion: 'El legendario casco amarillo de Ayrton Senna, tricampeón de F1.',
+        stock: 5,
+        categoria: 'Legend'
+    },
+    {
+        nombre: 'Casco Carlos Sainz (Rally)',
+        precio: 42.50,
+        imagen: '/images/sainz.png',
+        descripcion: 'Casco del "Matador" Carlos Sainz, leyenda del WRC.',
+        stock: 10,
+        categoria: 'Rally'
     }
 ];
 
