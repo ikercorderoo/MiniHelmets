@@ -3,11 +3,16 @@ const Pedido = require('../models/pedido');
 // Crear un nuevo pedido
 exports.createPedido = async (req, res) => {
     try {
-        const { items, total } = req.body;
+        const { items, total, adreca, ciutat, codi_postal, telefon, metode_pagament } = req.body;
 
         const nuevoPedido = new Pedido({
             items,
-            total
+            total,
+            adreca,
+            ciutat,
+            codi_postal,
+            telefon,
+            metode_pagament
         });
 
         const pedidoGuardado = await nuevoPedido.save();

@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Container, Navbar, Nav, Button, Card, Row, Col, Badge, Alert } from 'react-bootstrap';
 
 function Home() {
+  const navigate = useNavigate();
   // Estado para la cistella y productos
   const [cistella, setCistella] = useState([]);
   const [cistellaOberta, setCistellaOberta] = useState(false);
@@ -71,41 +72,15 @@ function Home() {
     setCistella(cistella.filter(item => item._id !== id));
   };
 
-  // Función para finalizar compra (enviar al backend)
-  const finalitzarCompra = () => {
-    const total = cistella.reduce((total, item) => total + (item.precio * item.quantitat), 0);
-
-    const pedido = {
-      items: cistella.map(item => ({
-        producto: item._id, // ID de mongo
-        nombre: item.nombre,
-        precio: item.precio,
-        quantitat: item.quantitat
-      })),
-      total: total
-    };
-
-    fetch('http://localhost:3000/api/pedidos', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(pedido)
-    })
-      .then(res => {
-        if (!res.ok) throw new Error('Error al guardar pedido');
-        return res.json();
-      })
-      .then(data => {
-        setMensajeCompra("Compra realitzada amb èxit! Gràcies per la teva comanda.");
-        setCistella([]); // Vaciar cistella
-        setTimeout(() => setMensajeCompra(null), 5000); // Ocultar mensaje a los 5s
-      })
-      .catch(err => {
-        console.error("Error al comprar:", err);
-        setMensajeCompra("Error al processar la compra. Torna-ho a provar.");
-      });
+  // Función para redirigir al checkout
+  const anarAlCheckout = () => {
+    setCistellaOberta(false);
+    // Usamos el hook useNavigate (debería importarse arriba)
   };
+
+  // El botón ahora simplemente redirige
+  // (Nota: Como anarAlCheckout necesita 'useNavigate', lo manejaré con un Link en el render)
+  // No necesitamos 'finalitzarCompra' aquí ya que se hará en Checkout.jsx
 
   // Calcular total de productos y precio
   const totalProductes = cistella.reduce((total, item) => total + item.quantitat, 0);
@@ -211,7 +186,7 @@ function Home() {
                       <strong>Total: </strong>
                       <strong className="fs-5 text-primary">${preuTotal.toFixed(2)}</strong>
                     </div>
-                    <Button variant="success" onClick={finalitzarCompra}>
+                    <Button variant="success" onClick={() => navigate('/checkout')}>
                       Finalitzar Compra
                     </Button>
                   </div>
