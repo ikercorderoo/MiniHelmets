@@ -1,6 +1,6 @@
 const usuarioService = require('../services/usuarioServices');
 
-const registrarse = async (req, res) => {
+const register = async (req, res) => {
     try {
         const resultado = await usuarioService.registrarUsuario(req.body);
         res.status(201).json({ 
@@ -86,7 +86,7 @@ const logout = async (req, res) => {
 };
 
 module.exports = {
-    registrarse,
+    register,
     login,
     refresh,
     logout

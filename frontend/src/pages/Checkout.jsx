@@ -32,7 +32,7 @@ function Checkout() {
         });
     };
 
-    const total = cistella.reduce((sum, item) => sum + (item.precio * item.quantitat), 0);
+    const total = parseFloat(cistella.reduce((sum, item) => sum + (item.precio * item.quantitat), 0).toFixed(2));
 
     const handleSubmit = (e) => {
         e.preventDefault();

@@ -4,7 +4,7 @@ require('dotenv').config({ path: path.join(__dirname, '../.env') });
 const express = require('express');
 const connectDB = require('./config/db');
 const productRoutes = require('./routes/productRoutes');
-const usuariosRoutes = require('./routes/usuariosRoutes');
+const authRoutes = require('./routes/authRoutes');
 
 const app = express();
 
@@ -29,7 +29,7 @@ console.log('MONGO_URI:', process.env.MONGO_URI ? 'CARGADO' : 'NO CARGADO');
 app.get('/', (req, res) => res.send('API Ecommerce en marxa 🚀'));
 
 app.use('/api/products', productRoutes);
-app.use('/api/usuarios', usuariosRoutes);
+app.use('/api/auth', authRoutes);
 app.use('/api/pedidos', require('./routes/pedidoRoutes'));
 
 const PORT = process.env.PORT || 3000;

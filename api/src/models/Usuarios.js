@@ -15,6 +15,11 @@ const usuarioSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    role: {
+        type: String,
+        enum: ['client', 'admin'],
+        default: 'client'
+    },
     refreshTokens: [{
         token: {
             type: String,
