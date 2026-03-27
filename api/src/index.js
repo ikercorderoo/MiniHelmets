@@ -5,10 +5,15 @@ const express = require('express');
 const connectDB = require('./config/db');
 const productRoutes = require('./routes/productRoutes');
 const authRoutes = require('./routes/authRoutes');
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpec = require('./docs/swagger');
 
 const app = express();
 
 app.use(express.json());
+
+// Documentació API amb Swagger
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Middleware CORS manual (para permitir peticiones desde el frontend 5173)
 app.use((req, res, next) => {
