@@ -49,26 +49,23 @@ function Register() {
     }
 
     try {
-      // Aquí conectarás con tu backend
-      console.log('Registro:', formData);
-      
-      // Simulación de llamada al backend
-      // const response = await fetch('http://localhost:3000/api/auth/register', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({
-      //     nombre: formData.nombre,
-      //     email: formData.email,
-      //     password: formData.password
-      //   })
-      // });
-      
-      // if (response.ok) {
-      //   navigate('/login');
-      // } else {
-      //   setError('Error al registrar usuario');
-      // }
-      
+      const response = await fetch('http://localhost:3000/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nombre: formData.nombre,
+          email: formData.email,
+          password: formData.password
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        navigate('/login');
+      } else {
+        setError(data.message || 'Error al registrar usuario');
+      }
     } catch (err) {
       setError('Error al conectar con el servidor');
     } finally {

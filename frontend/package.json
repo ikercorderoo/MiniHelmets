@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@stripe/stripe-js": "^9.2.0",
     "boostrap": "^2.0.0",
     "bootstrap": "^5.3.8",
     "react": "^19.2.0",

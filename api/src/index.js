@@ -5,14 +5,17 @@ const express = require('express');
 const connectDB = require('./config/db');
 const productRoutes = require('./routes/productRoutes');
 const authRoutes = require('./routes/authRoutes');
+const checkoutRoutes = require('./routes/checkoutRoutes');
+const { stripeWebhook } = require('./controllers/checkoutController');
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./docs/swagger');
 
 const app = express();
 
+app.post('/api/checkout/webhook', express.raw({ type: 'application/json' }), stripeWebhook);
 app.use(express.json());
 
-// Documentació API amb Swagger
+// Documentació API amb Swagger Crea la ruta api docs
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Middleware CORS manual (para permitir peticiones desde el frontend 5173)
@@ -36,6 +39,9 @@ app.get('/', (req, res) => res.send('API Ecommerce en marxa 🚀'));
 app.use('/api/products', productRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/pedidos', require('./routes/pedidoRoutes'));
+app.use('/api/orders', require('./routes/pedidoRoutes'));
+app.use('/api/cistella', require('./routes/cistellaRoutes'));
+app.use('/api/checkout', checkoutRoutes);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Servidor escoltant al port ${PORT}`));

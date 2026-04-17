@@ -13,11 +13,24 @@ function Home() {
   const [error, setError] = useState(null);
   const [cerca, setCerca] = useState("");
   const [categoria, setCategoria] = useState("");
+  const [usuarioLogueado, setUsuarioLogueado] = useState(null);
 
   // Cargar cistella de localStorage al iniciar
   useEffect(() => {
     const savedCart = JSON.parse(localStorage.getItem('cistella') || '[]');
     if (savedCart.length > 0) setCistella(savedCart);
+  }, []);
+
+  // Cargar usuario autenticado desde localStorage
+  useEffect(() => {
+    const usuarioGuardado = localStorage.getItem('usuario');
+    if (usuarioGuardado) {
+      try {
+        setUsuarioLogueado(JSON.parse(usuarioGuardado));
+      } catch (e) {
+        localStorage.removeItem('usuario');
+      }
+    }
   }, []);
 
   // Guardar cistella en localStorage cuando cambie
@@ -72,6 +85,14 @@ function Home() {
     setCistella(cistella.filter(item => item._id !== id));
   };
 
+  const cerrarSesion = () => {
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('usuario');
+    setUsuarioLogueado(null);
+    navigate('/login');
+  };
+
   // Función para redirigir al checkout
   const anarAlCheckout = () => {
     setCistellaOberta(false);
@@ -110,12 +131,25 @@ function Home() {
                 <span className="position-absolute translate-middle-y top-50 start-0 ps-3">🔍</span>
               </div>
 
-              <Nav.Link as={Link} to="/login" className="me-2">
-                Iniciar Sesión
-              </Nav.Link>
-              <Button as={Link} to="/register" variant="primary" className="me-2">
-                Registrarse
-              </Button>
+              {!usuarioLogueado ? (
+                <>
+                  <Nav.Link as={Link} to="/login" className="me-2">
+                    Iniciar Sesión
+                  </Nav.Link>
+                  <Button as={Link} to="/register" variant="primary" className="me-2">
+                    Registrarse
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Navbar.Text className="me-2">
+                    Hola, {usuarioLogueado.nombre || usuarioLogueado.email}
+                  </Navbar.Text>
+                  <Button variant="outline-danger" className="me-2" onClick={cerrarSesion}>
+                    Cerrar sesión
+                  </Button>
+                </>
+              )}
 
               <Button
                 variant="outline-primary"

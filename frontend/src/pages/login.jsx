@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Container, Row, Col, Card, Form, Button, Alert } from 'react-bootstrap';
 
@@ -9,28 +9,41 @@ function Login() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  useEffect(() => {
+    const token = localStorage.getItem('accessToken');
+    if (token) {
+      navigate('/');
+    }
+  }, [navigate]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
     try {
-      // Aquí conectarás con tu backend
-      console.log('Login:', { email, password });
-      
-      // Simulación de llamada al backend
-      // const response = await fetch('http://localhost:3000/api/auth/login', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ email, password })
-      // });
-      
-      // if (response.ok) {
-      //   navigate('/');
-      // } else {
-      //   setError('Credenciales incorrectas');
-      // }
-      
+      const response = await fetch('http://localhost:3000/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        if (data?.data?.accessToken) {
+          localStorage.setItem('accessToken', data.data.accessToken);
+        }
+        if (data?.data?.refreshToken) {
+          localStorage.setItem('refreshToken', data.data.refreshToken);
+        }
+        if (data?.data?.usuario) {
+          localStorage.setItem('usuario', JSON.stringify(data.data.usuario));
+        }
+        navigate('/');
+      } else {
+        setError(data?.mensaje || data?.message || 'Credenciales incorrectas');
+      }
     } catch (err) {
       setError('Error al conectar con el servidor');
     } finally {

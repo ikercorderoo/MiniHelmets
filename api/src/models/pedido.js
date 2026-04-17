@@ -1,6 +1,11 @@
 const mongoose = require('mongoose');
 
 const pedidoSchema = new mongoose.Schema({
+    usuario: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Usuario',
+        required: true
+    },
     items: [{
         producto: {
             type: mongoose.Schema.Types.ObjectId,
@@ -24,7 +29,10 @@ const pedidoSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
-    // Nuevos campos para Checkout (Sessió 14)
+    nombre: {
+        type: String,
+        required: [true, 'El nombre es obligatorio']
+    },
     adreca: {
         type: String,
         required: [true, 'La dirección es obligatoria']
@@ -44,7 +52,20 @@ const pedidoSchema = new mongoose.Schema({
     metode_pagament: {
         type: String,
         required: true,
-        enum: ['Targeta', 'PayPal', 'Efectiu'] // Validación enum según Apéndice C
+        enum: ['Targeta', 'PayPal', 'Efectiu']
+    },
+    estado: {
+        type: String,
+        enum: ['pending', 'paid', 'cancelled'],
+        default: 'pending'
+    },
+    stripeSessionId: {
+        type: String,
+        default: null
+    },
+    stripePaymentIntentId: {
+        type: String,
+        default: null
     },
     fecha: {
         type: Date,

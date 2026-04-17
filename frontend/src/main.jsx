@@ -8,6 +8,9 @@ import Login from './pages/login.jsx'
 import Register from './pages/register.jsx'
 import ProductDetail from './pages/ProductDetail.jsx'
 import Checkout from './pages/Checkout.jsx'
+import Cart from './pages/Cart.jsx'
+import CheckoutSuccess from './pages/CheckoutSuccess.jsx'
+import CheckoutCancel from './pages/CheckoutCancel.jsx'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
@@ -18,7 +21,10 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           <Route path="login" element={<Login />} />
           <Route path="register" element={<Register />} />
           <Route path="product/:id" element={<ProductDetail />} />
+          <Route path="cart" element={<Cart />} />
           <Route path="checkout" element={<Checkout />} />
+          <Route path="checkout/success" element={<CheckoutSuccess />} />
+          <Route path="checkout/cancel" element={<CheckoutCancel />} />
         </Route>
       </Routes>
     </BrowserRouter>

@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Form, Button, Row, Col, Card, Alert } from 'react-bootstrap';
 import { useNavigate, Link } from 'react-router-dom';
+import { loadStripe } from '@stripe/stripe-js';
+
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY || '');
 
 function Checkout() {
     const [cistella, setCistella] = useState([]);
@@ -39,6 +42,14 @@ function Checkout() {
         setLoading(true);
         setError(null);
 
+        const token = localStorage.getItem('accessToken');
+        if (!token) {
+            setError('Has d’iniciar sessió per finalitzar la compra.');
+            setLoading(false);
+            navigate('/login');
+            return;
+        }
+
         const pedido = {
             items: cistella.map(item => ({
                 producto: item._id,
@@ -50,10 +61,11 @@ function Checkout() {
             ...formData
         };
 
-        fetch('http://localhost:3000/api/pedidos', {
+        fetch('http://localhost:3000/api/orders', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`
             },
             body: JSON.stringify(pedido)
         })
@@ -61,14 +73,34 @@ function Checkout() {
                 if (!res.ok) throw new Error('Error al confirmar el pedido');
                 return res.json();
             })
-            .then(() => {
-                localStorage.removeItem('cistella'); // Vaciar cistella
-                alert('Comanda realitzada amb èxit!');
-                navigate('/');
+            .then(async (orderResponse) => {
+                const checkoutResponse = await fetch('http://localhost:3000/api/checkout/create-session', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ orderId: orderResponse?.pedido?._id })
+                });
+
+                if (!checkoutResponse.ok) {
+                    throw new Error('No s’ha pogut crear la sessió de pagament');
+                }
+
+                const { sessionId } = await checkoutResponse.json();
+                const stripe = await stripePromise;
+                if (!stripe) {
+                    throw new Error('Stripe no inicialitzat. Revisa VITE_STRIPE_PUBLIC_KEY.');
+                }
+
+                const result = await stripe.redirectToCheckout({ sessionId });
+                if (result.error) {
+                    throw new Error(result.error.message);
+                }
             })
             .catch(err => {
                 console.error(err);
-                setError('No s\'ha pogut processar la comanda. Revisa les dades.');
+                setError(err.message || 'No s\'ha pogut processar la comanda. Revisa les dades.');
             })
             .finally(() => setLoading(false));
     };
@@ -135,10 +167,10 @@ function Checkout() {
 
                             <div className="d-grid">
                                 <Button variant="primary" size="lg" type="submit" disabled={loading}>
-                                    {loading ? 'Processant...' : `Pagar $${total.toFixed(2)}`}
+                                    {loading ? 'Processant...' : `Pagar amb Stripe $${total.toFixed(2)}`}
                                 </Button>
-                                <Button as={Link} to="/" variant="link" className="text-muted mt-2">
-                                    Tornar enrere
+                                <Button as={Link} to="/cart" variant="link" className="text-muted mt-2">
+                                    Tornar a la cistella
                                 </Button>
                             </div>
                         </Form>
