@@ -121,4 +121,17 @@ router.get('/admin-only', authMiddleware, roleMiddleware('admin'), (req, res) =>
     res.json({ message: "Accés d'administrador confirmat", user: req.user });
 });
 
+/**
+ * @swagger
+ * /api/auth/users:
+ *   get:
+ *     summary: Obtenir tots els usuaris (només admin)
+ *     tags: [Auth]
+ *     security: [{ bearerAuth: [] }]
+ *     responses:
+ *       200: { description: Llista d'usuaris }
+ *       403: { description: Accés prohibit }
+ */
+router.get('/users', authMiddleware, roleMiddleware('admin'), authController.getUsuarios);
+
 module.exports = router;

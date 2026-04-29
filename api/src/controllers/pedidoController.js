@@ -79,3 +79,48 @@ exports.createPedido = async (req, res) => {
         res.status(500).json({ mensaje: 'Error al crear el pedido' });
     }
 };
+
+// Obtener pedidos del usuario autenticado
+exports.getMisPedidos = async (req, res) => {
+    try {
+        const pedidos = await Pedido.find({ usuario: req.user.id }).sort({ fecha: -1 });
+        res.json({ ok: true, data: pedidos });
+    } catch (error) {
+        res.status(500).json({ ok: false, mensaje: 'Error al obtener pedidos' });
+    }
+};
+
+// Obtener todos los pedidos (solo admin)
+exports.getAllPedidos = async (req, res) => {
+    try {
+        const pedidos = await Pedido.find().populate('usuario', 'nombre email').sort({ fecha: -1 });
+        res.json({ ok: true, data: pedidos });
+    } catch (error) {
+        res.status(500).json({ ok: false, mensaje: 'Error al obtener todos los pedidos' });
+    }
+};
+
+// Obtener estadísticas para gráficos (solo admin)
+exports.getStats = async (req, res) => {
+    try {
+        // Ejemplo: Ventas por día en los últimos 7 días
+        const sieteDiasAtras = new Date();
+        sieteDiasAtras.setDate(sieteDiasAtras.getDate() - 7);
+
+        const stats = await Pedido.aggregate([
+            { $match: { fecha: { $gte: sieteDiasAtras } } },
+            {
+                $group: {
+                    _id: { $dateToString: { format: "%Y-%m-%d", date: "$fecha" } },
+                    totalVentas: { $sum: "$total" },
+                    cantidadPedidos: { $sum: 1 }
+                }
+            },
+            { $sort: { "_id": 1 } }
+        ]);
+
+        res.json({ ok: true, data: stats });
+    } catch (error) {
+        res.status(500).json({ ok: false, mensaje: 'Error al obtener estadísticas' });
+    }
+};

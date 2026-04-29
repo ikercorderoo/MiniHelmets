@@ -145,6 +145,19 @@ function Home() {
                   <Navbar.Text className="me-2">
                     Hola, {usuarioLogueado.nombre || usuarioLogueado.email}
                   </Navbar.Text>
+                  
+                  {/* Enlace al Dashboard de Usuario */}
+                  <Nav.Link as={Link} to="/dashboard" className="me-2 text-primary fw-bold">
+                    El meu Compte
+                  </Nav.Link>
+
+                  {/* Enlace al Dashboard de Admin (si corresponde) */}
+                  {usuarioLogueado.role === 'admin' && (
+                    <Nav.Link as={Link} to="/admin/dashboard" className="me-2 text-danger fw-bold border border-danger rounded px-2">
+                      Admin Panel
+                    </Nav.Link>
+                  )}
+
                   <Button variant="outline-danger" className="me-2" onClick={cerrarSesion}>
                     Cerrar sesión
                   </Button>

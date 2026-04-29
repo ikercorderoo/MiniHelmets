@@ -11,6 +11,9 @@ import Checkout from './pages/Checkout.jsx'
 import Cart from './pages/Cart.jsx'
 import CheckoutSuccess from './pages/CheckoutSuccess.jsx'
 import CheckoutCancel from './pages/CheckoutCancel.jsx'
+import UserDashboard from './pages/UserDashboard.jsx'
+import AdminDashboard from './pages/AdminDashboard.jsx'
+import ProtectedRoute from './components/ProtectedRoute.jsx'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
@@ -22,9 +25,18 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           <Route path="register" element={<Register />} />
           <Route path="product/:id" element={<ProductDetail />} />
           <Route path="cart" element={<Cart />} />
-          <Route path="checkout" element={<Checkout />} />
-          <Route path="checkout/success" element={<CheckoutSuccess />} />
-          <Route path="checkout/cancel" element={<CheckoutCancel />} />
+          
+          {/* Rutas Protegidas */}
+          <Route element={<ProtectedRoute allowedRoles={['user', 'admin']} />}>
+            <Route path="checkout" element={<Checkout />} />
+            <Route path="checkout/success" element={<CheckoutSuccess />} />
+            <Route path="checkout/cancel" element={<CheckoutCancel />} />
+            <Route path="dashboard" element={<UserDashboard />} />
+          </Route>
+
+          <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
+            <Route path="admin/dashboard" element={<AdminDashboard />} />
+          </Route>
         </Route>
       </Routes>
     </BrowserRouter>

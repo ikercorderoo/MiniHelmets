@@ -85,9 +85,25 @@ const logout = async (req, res) => {
     }
 };
 
+const getUsuarios = async (req, res) => {
+    try {
+        const usuarios = await usuarioService.obtenerTodosLosUsuarios();
+        res.status(200).json({ 
+            ok: true,
+            data: usuarios 
+        });
+    } catch (error) {
+        res.status(500).json({ 
+            ok: false, 
+            mensaje: error.message 
+        });
+    }
+};
+
 module.exports = {
     register,
     login,
     refresh,
-    logout
+    logout,
+    getUsuarios
 };

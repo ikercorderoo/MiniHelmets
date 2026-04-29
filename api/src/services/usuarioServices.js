@@ -49,7 +49,8 @@ const registrarUsuario = async ({ nombre, email, password }) => {
         usuario: {
             id: nuevoUsuario._id,
             nombre: nuevoUsuario.nombre,
-            email: nuevoUsuario.email
+            email: nuevoUsuario.email,
+            role: nuevoUsuario.role
         },
         accessToken,
         refreshToken
@@ -77,7 +78,8 @@ const loginUsuario = async ({ email, password }) => {
         usuario: {
             id: usuario._id,
             nombre: usuario.nombre,
-            email: usuario.email
+            email: usuario.email,
+            role: usuario.role
         },
         accessToken,
         refreshToken
@@ -148,9 +150,18 @@ const logout = async (refreshToken) => {
     }
 };
 
+const obtenerTodosLosUsuarios = async () => {
+    try {
+        return await Usuario.find({}, '-password -refreshTokens');
+    } catch (error) {
+        throw new Error('Error al obtener usuarios');
+    }
+};
+
 module.exports = {
     registrarUsuario,
     loginUsuario,
     renovarTokens,
-    logout
+    logout,
+    obtenerTodosLosUsuarios
 };
