@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Container, Navbar, Nav, Button, Card, Row, Col, Badge, Alert } from 'react-bootstrap';
 
+import API_URL from '../config/api';
+
 function Home() {
   const navigate = useNavigate();
   // Estado para la cistella y productos
@@ -40,7 +42,7 @@ function Home() {
 
   // Cargar productos del backend con filtros de búsqueda y categoría
   useEffect(() => {
-    let url = `http://localhost:3000/api/products?nombre=${cerca}`;
+    let url = `${API_URL}/api/products?nombre=${cerca}`;
     if (categoria) url += `&categoria=${categoria}`;
 
     fetch(url)

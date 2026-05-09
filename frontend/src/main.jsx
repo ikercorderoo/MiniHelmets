@@ -25,12 +25,12 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           <Route path="register" element={<Register />} />
           <Route path="product/:id" element={<ProductDetail />} />
           <Route path="cart" element={<Cart />} />
+          <Route path="checkout/success" element={<CheckoutSuccess />} />
+          <Route path="checkout/cancel" element={<CheckoutCancel />} />
           
           {/* Rutas Protegidas */}
-          <Route element={<ProtectedRoute allowedRoles={['user', 'admin']} />}>
+          <Route element={<ProtectedRoute allowedRoles={['client', 'admin']} />}>
             <Route path="checkout" element={<Checkout />} />
-            <Route path="checkout/success" element={<CheckoutSuccess />} />
-            <Route path="checkout/cancel" element={<CheckoutCancel />} />
             <Route path="dashboard" element={<UserDashboard />} />
           </Route>
 

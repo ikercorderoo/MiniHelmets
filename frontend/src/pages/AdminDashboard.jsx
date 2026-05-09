@@ -15,9 +15,12 @@ ChartJS.register(
   Legend
 );
 
+import API_URL from '../config/api';
+
 const AdminDashboard = () => {
     const [users, setUsers] = useState([]);
     const [stats, setStats] = useState([]);
+    const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const token = localStorage.getItem('accessToken');
@@ -26,22 +29,29 @@ const AdminDashboard = () => {
         const fetchAdminData = async () => {
             try {
                 // Fetch Users
-                const resUsers = await fetch('http://localhost:3000/api/auth/users', {
+                const resUsers = await fetch(`${API_URL}/api/auth/users`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const dataUsers = await resUsers.json();
 
                 // Fetch Stats
-                const resStats = await fetch('http://localhost:3000/api/pedidos/stats', {
+                const resStats = await fetch(`${API_URL}/api/pedidos/stats`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const dataStats = await resStats.json();
 
-                if (dataUsers.ok && dataStats.ok) {
+                // Fetch Orders
+                const resOrders = await fetch(`${API_URL}/api/orders/all`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const dataOrders = await resOrders.json();
+
+                if (dataUsers.ok && dataStats.ok && dataOrders.ok) {
                     setUsers(dataUsers.data);
                     setStats(dataStats.data);
+                    setOrders(dataOrders.data);
                 } else {
-                    setError(dataUsers.mensaje || dataStats.mensaje);
+                    setError(dataUsers.mensaje || dataStats.mensaje || dataOrders.mensaje || 'No s\'han pogut carregar les dades d\'admin');
                 }
             } catch (err) {
                 setError('Error al conectar con el servidor');
@@ -134,6 +144,46 @@ const AdminDashboard = () => {
                                         </td>
                                     </tr>
                                 ))}
+                            </tbody>
+                        </Table>
+                    </Tab>
+                    <Tab eventKey="orders" title="Registre de Comandes">
+                        <Table responsive striped bordered hover className="mt-3 shadow-sm">
+                            <thead className="table-dark">
+                                <tr>
+                                    <th>Comanda</th>
+                                    <th>Client</th>
+                                    <th>Email</th>
+                                    <th>Items</th>
+                                    <th>Total</th>
+                                    <th>Estat</th>
+                                    <th>Data</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {orders.length === 0 ? (
+                                    <tr>
+                                        <td colSpan={7} className="text-center text-muted py-4">
+                                            Encara no hi ha comandes registrades.
+                                        </td>
+                                    </tr>
+                                ) : (
+                                    orders.map((order) => (
+                                        <tr key={order._id}>
+                                            <td>{order._id.substring(0, 8)}...</td>
+                                            <td>{order?.usuario?.nombre || 'Client eliminat'}</td>
+                                            <td>{order?.usuario?.email || '-'}</td>
+                                            <td>{Array.isArray(order.items) ? order.items.length : 0}</td>
+                                            <td>${Number(order.total || 0).toFixed(2)}</td>
+                                            <td>
+                                                <Badge bg={order.estado === 'paid' ? 'success' : order.estado === 'pending' ? 'warning' : 'secondary'}>
+                                                    {order.estado}
+                                                </Badge>
+                                            </td>
+                                            <td>{order.fecha ? new Date(order.fecha).toLocaleString() : '-'}</td>
+                                        </tr>
+                                    ))
+                                )}
                             </tbody>
                         </Table>
                     </Tab>

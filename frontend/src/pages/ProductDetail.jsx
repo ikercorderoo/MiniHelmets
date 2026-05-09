@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Container, Row, Col, Button, Card, Badge, Spinner, Alert } from 'react-bootstrap';
 
+import API_URL from '../config/api';
+
 function ProductDetail() {
     const { id } = useParams();
     const [producto, setProducto] = useState(null);
@@ -10,7 +12,7 @@ function ProductDetail() {
     const [cistella, setCistella] = useState([]); // Manejo local simplificado para demostrar
 
     useEffect(() => {
-        fetch(`http://localhost:3000/api/products/${id}`)
+        fetch(`${API_URL}/api/products/${id}`)
             .then(res => {
                 if (!res.ok) throw new Error('No s\'ha pogut carregar el producte');
                 return res.json();

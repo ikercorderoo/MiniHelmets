@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Container, Table, Badge, Card, Row, Col, Spinner, Alert } from 'react-bootstrap';
 
+import API_URL from '../config/api';
+
 const UserDashboard = () => {
     const [pedidos, setPedidos] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -11,7 +13,7 @@ const UserDashboard = () => {
         const fetchPedidos = async () => {
             try {
                 const token = localStorage.getItem('accessToken');
-                const response = await fetch('http://localhost:3000/api/pedidos/mis-pedidos', {
+                const response = await fetch(`${API_URL}/api/pedidos/mis-pedidos`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }

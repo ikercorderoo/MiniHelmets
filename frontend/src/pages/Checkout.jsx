@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Form, Button, Row, Col, Card, Alert } from 'react-bootstrap';
 import { useNavigate, Link } from 'react-router-dom';
-import { loadStripe } from '@stripe/stripe-js';
+import API_URL from '../config/api';
 
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY || '');
+const hasStripePublicKey = Boolean(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
 
 function Checkout() {
     const [cistella, setCistella] = useState([]);
@@ -49,6 +49,11 @@ function Checkout() {
             navigate('/login');
             return;
         }
+        if (formData.metode_pagament === 'Targeta' && !hasStripePublicKey) {
+            setError('Falta configurar VITE_STRIPE_PUBLIC_KEY al frontend.');
+            setLoading(false);
+            return;
+        }
 
         const pedido = {
             items: cistella.map(item => ({
@@ -61,7 +66,7 @@ function Checkout() {
             ...formData
         };
 
-        fetch('http://localhost:3000/api/orders', {
+        fetch(`${API_URL}/api/orders`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -69,33 +74,38 @@ function Checkout() {
             },
             body: JSON.stringify(pedido)
         })
-            .then(res => {
-                if (!res.ok) throw new Error('Error al confirmar el pedido');
-                return res.json();
+            .then(async (res) => {
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok) {
+                    throw new Error(data?.mensaje || data?.message || 'Error al confirmar el pedido');
+                }
+                return data;
             })
             .then(async (orderResponse) => {
-                const checkoutResponse = await fetch('http://localhost:3000/api/checkout/create-session', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Authorization: `Bearer ${token}`
-                    },
-                    body: JSON.stringify({ orderId: orderResponse?.pedido?._id })
-                });
+                // Si el método es 'Targeta', creamos sesión de Stripe
+                if (formData.metode_pagament === 'Targeta') {
+                    const checkoutResponse = await fetch(`${API_URL}/api/checkout/create-session`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            Authorization: `Bearer ${token}`
+                        },
+                        body: JSON.stringify({ orderId: orderResponse?.pedido?._id })
+                    });
 
-                if (!checkoutResponse.ok) {
-                    throw new Error('No s’ha pogut crear la sessió de pagament');
-                }
+                    const checkoutData = await checkoutResponse.json().catch(() => ({}));
+                    if (!checkoutResponse.ok) {
+                        throw new Error(checkoutData?.mensaje || checkoutData?.message || 'No s’ha pogut crear la sessió de pagament');
+                    }
 
-                const { sessionId } = await checkoutResponse.json();
-                const stripe = await stripePromise;
-                if (!stripe) {
-                    throw new Error('Stripe no inicialitzat. Revisa VITE_STRIPE_PUBLIC_KEY.');
-                }
-
-                const result = await stripe.redirectToCheckout({ sessionId });
-                if (result.error) {
-                    throw new Error(result.error.message);
+                    if (!checkoutData?.url) {
+                        throw new Error('Stripe no ha retornat URL de checkout.');
+                    }
+                    window.location.href = checkoutData.url;
+                } else {
+                    // Si es 'Efectiu' o 'PayPal', redirigimos directamente a éxito
+                    localStorage.removeItem('cistella');
+                    navigate('/checkout/success');
                 }
             })
             .catch(err => {
@@ -167,7 +177,7 @@ function Checkout() {
 
                             <div className="d-grid">
                                 <Button variant="primary" size="lg" type="submit" disabled={loading}>
-                                    {loading ? 'Processant...' : `Pagar amb Stripe $${total.toFixed(2)}`}
+                                    {loading ? 'Processant...' : (formData.metode_pagament === 'Targeta' ? `Pagar amb Stripe $${total.toFixed(2)}` : `Confirmar Comanda $${total.toFixed(2)}`)}
                                 </Button>
                                 <Button as={Link} to="/cart" variant="link" className="text-muted mt-2">
                                     Tornar a la cistella

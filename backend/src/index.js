@@ -18,9 +18,10 @@ app.use(express.json());
 // Documentació API amb Swagger Crea la ruta api docs
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-// Middleware CORS manual (para permitir peticiones desde el frontend 5173)
+// Middleware CORS manual
 app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', '*');
+    const origin = process.env.FRONTEND_URL || '*';
+    res.header('Access-Control-Allow-Origin', origin);
     res.header('Access-Control-Allow-Headers', 'Authorization, X-API-KEY, Origin, X-Requested-With, Content-Type, Accept, Access-Control-Allow-Request-Method');
     res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE');
     res.header('Allow', 'GET, POST, OPTIONS, PUT, DELETE');

@@ -5,8 +5,9 @@ const Product = require('../models/Product');
 exports.createPedido = async (req, res) => {
     try {
         const { items, total, nombre, adreca, ciutat, codi_postal, telefon, metode_pagament } = req.body;
+        const authUserId = req.user?.id || req.user?.userId;
 
-        if (!req.user?.id) {
+        if (!authUserId) {
             return res.status(401).json({ mensaje: 'Usuario no autenticado' });
         }
 
@@ -56,7 +57,7 @@ exports.createPedido = async (req, res) => {
         }
 
         const nuevoPedido = new Pedido({
-            usuario: req.user.id,
+            usuario: authUserId,
             items: itemsValidados,
             total: totalRedondeado,
             nombre,
@@ -83,7 +84,11 @@ exports.createPedido = async (req, res) => {
 // Obtener pedidos del usuario autenticado
 exports.getMisPedidos = async (req, res) => {
     try {
-        const pedidos = await Pedido.find({ usuario: req.user.id }).sort({ fecha: -1 });
+        const authUserId = req.user?.id || req.user?.userId;
+        if (!authUserId) {
+            return res.status(401).json({ ok: false, mensaje: 'Usuario no autenticado' });
+        }
+        const pedidos = await Pedido.find({ usuario: authUserId }).sort({ fecha: -1 });
         res.json({ ok: true, data: pedidos });
     } catch (error) {
         res.status(500).json({ ok: false, mensaje: 'Error al obtener pedidos' });

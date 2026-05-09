@@ -1,4 +1,5 @@
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+const stripe = stripeSecretKey ? require('stripe')(stripeSecretKey) : null;
 const Pedido = require('../models/pedido');
 const Product = require('../models/Product');
 
@@ -6,9 +7,14 @@ const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
 
 const createCheckoutSession = async (req, res) => {
     try {
+        if (!stripe) {
+            return res.status(500).json({ message: 'Stripe no configurado en el servidor' });
+        }
+        const authUserId = req.user?.id || req.user?.userId;
+
         const { orderId } = req.body;
 
-        if (!req.user?.id) {
+        if (!authUserId) {
             return res.status(401).json({ message: 'Usuario no autenticado' });
         }
 
@@ -21,7 +27,7 @@ const createCheckoutSession = async (req, res) => {
             return res.status(404).json({ message: 'Pedido no encontrado' });
         }
 
-        if (String(pedido.usuario) !== String(req.user.id)) {
+        if (String(pedido.usuario) !== String(authUserId)) {
             return res.status(403).json({ message: 'No puedes pagar este pedido' });
         }
 
@@ -74,7 +80,7 @@ const createCheckoutSession = async (req, res) => {
         pedido.stripeSessionId = session.id;
         await pedido.save();
 
-        return res.status(200).json({ sessionId: session.id });
+        return res.status(200).json({ sessionId: session.id, url: session.url });
     } catch (error) {
         console.error('Error en createCheckoutSession:', error);
         return res.status(400).json({ message: 'Error en el pagament' });
@@ -85,6 +91,13 @@ const stripeWebhook = async (req, res) => {
     const signature = req.headers['stripe-signature'];
 
     try {
+        if (!stripe) {
+            return res.status(500).send('Stripe no configurado');
+        }
+        if (!process.env.STRIPE_WEBHOOK_SECRET) {
+            return res.status(500).send('Webhook secret no configurado');
+        }
+
         const event = stripe.webhooks.constructEvent(
             req.body,
             signature,
@@ -97,7 +110,7 @@ const stripeWebhook = async (req, res) => {
 
             if (orderId) {
                 const pedido = await Pedido.findById(orderId);
-                if (pedido) {
+                if (pedido && pedido.estado === 'pending') {
                     pedido.estado = 'paid';
                     pedido.stripePaymentIntentId = session.payment_intent || null;
 
@@ -110,6 +123,13 @@ const stripeWebhook = async (req, res) => {
 
                     await pedido.save();
                 }
+            }
+        }
+        if (event.type === 'checkout.session.expired' || event.type === 'payment_intent.payment_failed') {
+            const sessionOrIntent = event.data.object;
+            const orderId = sessionOrIntent?.metadata?.orderId;
+            if (orderId) {
+                await Pedido.findByIdAndUpdate(orderId, { estado: 'cancelled' });
             }
         }
 

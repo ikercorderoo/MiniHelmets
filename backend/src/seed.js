@@ -1,5 +1,6 @@
 require('dotenv').config({ path: '../.env' });
 const mongoose = require('mongoose');
+const Usuario = require('./models/Usuarios');
 const Product = require('./models/Product');
 
 const productos = [
@@ -53,23 +54,44 @@ const productos = [
     }
 ];
 
-mongoose.connect(process.env.MONGO_URI || 'mongodb://iker:1234@localhost:27057/ecommerce?authSource=admin')
-    .then(async () => {
+const seedData = async () => {
+    try {
+        await mongoose.connect(process.env.MONGO_URI || 'mongodb://iker:1234@localhost:27057/ecommerce?authSource=admin');
         console.log('Conectado a MongoDB...');
 
-        try {
-            await Product.deleteMany({}); // Borrar productos viejos
-            console.log('Productos antiguos eliminados.');
+        // Limpiar datos
+        await Product.deleteMany({});
+        await Usuario.deleteMany({});
+        console.log('Datos antiguos eliminados.');
 
-            await Product.insertMany(productos);
-            console.log('4 Productos de ejemplo insertados correctamente.');
-        } catch (error) {
-            console.error('Error insertando datos:', error);
-        }
+        // Insertar productos
+        await Product.insertMany(productos);
+        console.log('Productos de ejemplo insertados.');
+
+        // Insertar usuarios de prueba
+        const admin = new Usuario({
+            nombre: 'Admin',
+            email: 'admin@minihelmets.com',
+            password: 'admin123',
+            role: 'admin'
+        });
+
+        const user = new Usuario({
+            nombre: 'Usuario Test',
+            email: 'user@minihelmets.com',
+            password: 'user123',
+            role: 'client'
+        });
+
+        await admin.save();
+        await user.save();
+        console.log('Usuarios de prueba creados (admin@minihelmets.com y user@minihelmets.com)');
 
         mongoose.disconnect();
-    })
-    .catch(err => {
-        console.error('Error conectando a MongoDB:', err);
+    } catch (error) {
+        console.error('Error insertando datos:', error);
         process.exit(1);
-    });
+    }
+};
+
+seedData();
