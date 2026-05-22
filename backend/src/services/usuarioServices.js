@@ -9,7 +9,7 @@ const generarAccessToken = (usuario) => {
             role: usuario.role
         },
         process.env.JWT_SECRET,
-        { expiresIn: '15m' }
+        { expiresIn: '1d' } // Incrementado de '15m' a '1d' para facilitar el desarrollo
     );
 };
 

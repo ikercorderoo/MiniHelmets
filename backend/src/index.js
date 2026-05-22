@@ -10,7 +10,17 @@ const { stripeWebhook } = require('./controllers/checkoutController');
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./docs/swagger');
 
+// Middlewares i rutes d'observabilitat
+const requestId = require('./middleware/requestId');
+const httpLogger = require('./middleware/httpLogger');
+const errorHandler = require('./middleware/errorHandler');
+const healthRoutes = require('./routes/healthRoutes');
+
 const app = express();
+
+// Assignar requestId i loguejar HTTP abans de qualsevol processament de petició
+app.use(requestId);
+app.use(httpLogger);
 
 app.post('/api/checkout/webhook', express.raw({ type: 'application/json' }), stripeWebhook);
 app.use(express.json());
@@ -37,6 +47,12 @@ console.log('MONGO_URI:', process.env.MONGO_URI ? 'CARGADO' : 'NO CARGADO');
 
 app.get('/', (req, res) => res.send('API Ecommerce en marxa 🚀'));
 
+// Endpoint de debug temporal per comprovar l'observabilitat dels errors
+app.get('/api/debug/error', (req, res, next) => {
+    next(new Error('Error de prova per observabilitat'));
+});
+
+app.use('/api', healthRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/pedidos', require('./routes/pedidoRoutes'));
@@ -44,5 +60,9 @@ app.use('/api/orders', require('./routes/pedidoRoutes'));
 app.use('/api/cistella', require('./routes/cistellaRoutes'));
 app.use('/api/checkout', checkoutRoutes);
 
+// Middleware d'errors global (ha de ser l'últim middleware)
+app.use(errorHandler);
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Servidor escoltant al port ${PORT}`));
+
